@@ -1,3 +1,3 @@
 # inshort-tg-bot
 
-work in progress..... I have to setup is this bot in such a way that it will scrape all the news, indexed on onshorts page.
+Just add the bot token provided by bot father... and deploy it on some server, your bot will start working.
