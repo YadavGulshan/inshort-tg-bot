@@ -1,36 +1,24 @@
-from aiogram import Bot, Dispatcher, executor, filters, types
+from aiogram import Bot, Dispatcher, executor, types
 import asyncio
 import logging
 from bs4 import BeautifulSoup as bs4
 import requests
-import os
-from aiogram import Bot, Dispatcher, executor, types
+from time import sleep
+
 
 API_TOKEN = '1311723678:AAElZga5sq6-7NuUlWV3KAcvT6Hys_hDPYg'
-
+chid = '-1001440981893'
+# bot = telegram.Bot(API_TOKEN)
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 
 # Initialize bot and dispatcher
 bot = Bot(token=API_TOKEN)
 dp = Dispatcher(bot)
-url = 'https://inshorts.com/en/read'
-
-
-class color:
-    PURPLE = '\033[95m'
-    CYAN = '\033[96m'
-    DARKCYAN = '\033[36m'
-    BLUE = '\033[94m'
-    GREEN = '\033[92m'
-    YELLOW = '\033[93m'
-    RED = '\033[91m'
-    BOLD = '\033[1m'
-    UNDERLINE = '\033[4m'
-    END = '\033[0m'
 
 
 def scrapping():
+    url = 'https://inshorts.com/en/read'
     page = requests.get(url)
     soup = bs4(page.text, 'html.parser')
     # print(soup.prettify())
@@ -62,36 +50,46 @@ def body_scraping():
         return body
 
 
-@dp.message_handler(filters.CommandStart())
-async def send_welcome(message: types.Message):
-    # So... At first I want to send something like this:
-    await message.reply("Cooking...")
-
-    # Wait a little...
-    await asyncio.sleep(1)
+@dp.message_handler(commands=['hey'])
+async def inshort(message: types.Message):
 
     # Good bots should send chat actions...
-    await types.ChatActions.upload_photo()
+    # await types.ChatActions.upload_photo()
 
     # Create media group
-    media = types.MediaGroup()
+    # media = types.MediaGroup()
 
     thumbnail = image_scraping()
     title = title_scraping()
     body = body_scraping()
-    media.attach_photo(thumbnail,
-                       f"<b>{title}</b>\n\n{body}")
+    # media.attach_photo(thumbnail,
+    #                    f"<b>{title}</b>\n\n{body}", parse_mode="HTML")
 
+    await bot.send_photo(chat_id=chid,
+                         photo=thumbnail, caption=f"<b>{title}</b>\n\n{body}", parse_mode="HTML")
     # Done! Send media group
-    await message.reply_media_group(media=media)
+    # await message.answer_media_group(media=media)
 
 
-@dp.message_handler(commands=['start', 'help'])
+@dp.message_handler(commands=['get'])
 async def send_welcome(message: types.Message):
-    """
-    This handler will be called when user sends `/start` or `/help` command
-    """
-    # await message.reply("Hi!\nI'm EchoBot!\nPowered by aiogram.")
+    await message.reply("Hi!\nI'm EchoBot!\nPowered by aiogram.")
+    await inshort(message)
+
+
+@dp.message_handler(commands=['start'])
+async def main(message: types.Message):
+    i = 1
+    await inshort(message)
+    temp = title_scraping()
+    while(i == 1):
+        if(temp == title_scraping()):
+            print("Haven't found something new")
+            await asyncio.sleep(30)
+        else:
+            await inshort(message)
+            temp = title_scraping()
+            print("I got something")
 
 
 @dp.message_handler()
@@ -99,8 +97,9 @@ async def echo(message: types.Message):
     # old style:
     # await bot.send_message(message.chat.id, message.text)
     await message.reply(message.text)
-    print(message.text)
+    # print(message.text)
     # await message.answer(message.text)
+
 
 if __name__ == '__main__':
     executor.start_polling(dp, skip_updates=False)
