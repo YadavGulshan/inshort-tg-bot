@@ -6,9 +6,7 @@ import requests
 from time import sleep
 
 
-API_TOKEN = '1311723678:AAElZga5sq6-7NuUlWV3KAcvT6Hys_hDPYg'
-# chid = '-1001440981893'
-# bot = telegram.Bot(API_TOKEN)
+API_TOKEN = 'token'
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 
@@ -74,12 +72,6 @@ def hrefstuff():
 @dp.message_handler(commands=['hey'])
 async def inshort(message: types.Message):
 
-    # Good bots should send chat actions...
-    # await types.ChatActions.upload_photo()
-
-    # Create media group
-    # media = types.MediaGroup()
-
     thumbnail = image_scraping()
     title = title_scraping()
     body = body_scraping()
@@ -87,15 +79,8 @@ async def inshort(message: types.Message):
     readmore = readmoreLink()
     href = hrefstuff()
 
-    # media.attach_photo(thumbnail,
-    #                    f"<b>{title}</b>\n\n{body}", parse_mode="HTML")
-
-    # await bot.send_photo(chat_id=chid,
-    #                      photo=thumbnail, caption=f"<b>{title}</b>\n\n{body}\n{author}\n{readmore}", parse_mode="HTML")
     await bot.send_photo(chat_id=message.chat.id,
                          photo=thumbnail, caption=f"<b>{title}</b>\n\n{body}\n{author}\n<a href='{href}'>{readmore}</a>", parse_mode="HTML")
-    # Done! Send media group
-    # await message.answer_media_group(media=media)
 
 
 @dp.message_handler(commands=['get'])
