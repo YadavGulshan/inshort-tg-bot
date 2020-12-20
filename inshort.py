@@ -7,7 +7,7 @@ from time import sleep
 
 
 API_TOKEN = '1311723678:AAElZga5sq6-7NuUlWV3KAcvT6Hys_hDPYg'
-chid = '-1001440981893'
+# chid = '-1001440981893'
 # bot = telegram.Bot(API_TOKEN)
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -22,7 +22,6 @@ def scrapping():
     page = requests.get(url)
     soup = bs4(page.text, 'html.parser')
     # print(soup.prettify())
-    html = soup.prettify()
     div = soup.findAll('div', class_="news-card z-depth-1")
     return div
 
@@ -50,6 +49,28 @@ def body_scraping():
         return body
 
 
+def authorIs():
+    div = scrapping()
+    for auth in div:
+        authorAndTime = auth.find(
+            'div', class_="news-card-author-time news-card-author-time-in-title").getText()
+        return authorAndTime
+
+
+def readmoreLink():
+    div = scrapping()
+    for read in div:
+        read1 = read.find('div', class_="read-more").getText()
+        return read1
+
+
+def hrefstuff():
+    hr = scrapping()
+    for readmorelinkis in hr:
+        readmore = readmorelinkis.find('a', class_="source").get("href")
+        return readmore
+
+
 @dp.message_handler(commands=['hey'])
 async def inshort(message: types.Message):
 
@@ -62,11 +83,17 @@ async def inshort(message: types.Message):
     thumbnail = image_scraping()
     title = title_scraping()
     body = body_scraping()
+    author = authorIs().replace("short", "")
+    readmore = readmoreLink()
+    href = hrefstuff()
+
     # media.attach_photo(thumbnail,
     #                    f"<b>{title}</b>\n\n{body}", parse_mode="HTML")
 
-    await bot.send_photo(chat_id=chid,
-                         photo=thumbnail, caption=f"<b>{title}</b>\n\n{body}", parse_mode="HTML")
+    # await bot.send_photo(chat_id=chid,
+    #                      photo=thumbnail, caption=f"<b>{title}</b>\n\n{body}\n{author}\n{readmore}", parse_mode="HTML")
+    await bot.send_photo(chat_id=message.chat.id,
+                         photo=thumbnail, caption=f"<b>{title}</b>\n\n{body}\n{author}\n<a href='{href}'>{readmore}</a>", parse_mode="HTML")
     # Done! Send media group
     # await message.answer_media_group(media=media)
 
@@ -103,3 +130,6 @@ async def echo(message: types.Message):
 
 if __name__ == '__main__':
     executor.start_polling(dp, skip_updates=False)
+
+
+# print(image_scraping())
